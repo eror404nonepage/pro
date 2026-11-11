@@ -50,7 +50,6 @@
       --ok-line: rgba(79, 220, 166, 0.34);
       --bad: #ff7078;
       --bad-soft: rgba(255, 112, 120, 0.12);
-      --bad-line: rgba(255, 112, 120, 0.36);
 
       --glass: rgba(9, 9, 13, 0.74);
       --glass-strong: rgba(14, 14, 20, 0.82);
@@ -97,7 +96,6 @@
       --ok-line: rgba(13, 138, 94, 0.34);
       --bad: #c92a36;
       --bad-soft: rgba(201, 42, 54, 0.09);
-      --bad-line: rgba(201, 42, 54, 0.34);
 
       --glass: rgba(250, 246, 237, 0.78);
       --glass-strong: rgba(255, 253, 248, 0.86);
@@ -237,7 +235,6 @@
     .btn-ghost:hover:not(:disabled) { border-color: var(--gold-line); color: var(--gold-text); }
     .btn-line { background: transparent; color: var(--gold-text); border: 1px solid var(--gold-line); }
     .btn-line:hover:not(:disabled) { background: var(--gold-soft); }
-    .btn-danger { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad-line); }
     .btn-sm { height: 38px; font-size: 11.5px; border-radius: 12px; padding: 0 14px; letter-spacing: 0.1em; }
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
@@ -681,7 +678,6 @@
         <div class="eyebrow">Statistics</div>
         <div class="mk-rows">
           <div><span>Market cap</span><b id="mk-cap"></b></div>
-          <div><span>Fully diluted value</span><b id="mk-fdv"></b></div>
           <div><span>24h volume</span><b id="mk-vol"></b></div>
           <div><span>Circulating supply</span><b id="mk-circ"></b></div>
           <div><span>Max supply</span><b id="mk-max"></b></div>
@@ -743,15 +739,15 @@
     <div class="auth-card">
       <span class="logo logo-xxl" data-logo="one">1</span>
       <span class="wordmark-lux">OneCoin</span>
-      <h3 id="auth-title">SIGN IN</h3>
+      <h3 id="auth-title">SIGN UP</h3>
       <input id="auth-user" onkeydown="if (event.key === 'Enter') submitAuth()" type="text" maxlength="20" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" oninput="sanitize(this, /[^a-z]/g)" placeholder="Username" class="input">
       <div class="pw">
-        <input id="auth-pass" onkeydown="if (event.key === 'Enter') submitAuth()" type="password" autocomplete="current-password" oninput="sanitize(this, /[^!-~]/g)" placeholder="Password" class="input">
+        <input id="auth-pass" onkeydown="if (event.key === 'Enter') submitAuth()" type="password" autocomplete="new-password" oninput="sanitize(this, /[^!-~]/g)" placeholder="Password" class="input">
         <button id="auth-eye" type="button" onmousedown="eyeDown(); event.preventDefault()" ontouchstart="eyeDown()" onclick="togglePass()" aria-label="Show password" class="eye"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3.5 3.5l17 17"/></svg></button>
       </div>
-      <input id="auth-code" onkeydown="if (event.key === 'Enter') submitAuth()" type="text" inputmode="numeric" oninput="sanitize(this, /\D/g)" placeholder="Invite Code" class="input hidden">
-      <button id="auth-submit" onclick="submitAuth()" class="btn btn-gold">SIGN IN</button>
-      <button id="auth-switch" onclick="setAuthMode(authMode === 'in' ? 'up' : 'in')" class="auth-link">No account? Sign Up</button>
+      <input id="auth-code" onkeydown="if (event.key === 'Enter') submitAuth()" type="text" inputmode="numeric" oninput="sanitize(this, /\D/g)" placeholder="Invite Code" class="input">
+      <button id="auth-submit" onclick="submitAuth()" class="btn btn-gold">SIGN UP</button>
+      <button id="auth-switch" onclick="setAuthMode(authMode === 'in' ? 'up' : 'in')" class="auth-link">Have an account? Sign In</button>
     </div>
   </div>
 
@@ -786,8 +782,6 @@
           <span id="sound-label">Sound on</span>
         </button>
       </div>
-
-      <button onclick="closeModal('settings-modal'); logout();" class="btn btn-danger">Log out</button>
     </div>
   </div>
 
@@ -960,7 +954,7 @@
     let session = null;
     let state = null;
     let config = {};
-    let authMode = 'in';
+    let authMode = 'up';
     let pulseTimer = null;
     let stateTimer = null;
     let pulseBusy = false;
@@ -979,7 +973,7 @@
     let withdrawTimer = null;
     let soundOn = true;
     let audioCtx = null;
-    let windSource = null;
+    let miningTicker = null;
     let invite = null;
     let marketRange = '1M';
     let marketTimer = null;
@@ -999,64 +993,34 @@
       } catch (e) {}
     }
 
-    function startWindSound() {
+    const FEEDBACK = {
+      tap: { notes: [[1900, 0, 0.035, 0.04]], buzz: 8 },
+      tick: { notes: [[2600, 0, 0.015, 0.025]], buzz: 5 },
+      success: { notes: [[784, 0, 0.1, 0.09], [1175, 0.1, 0.22, 0.09]], buzz: [18, 50, 18] },
+      error: { notes: [[330, 0, 0.12, 0.1], [247, 0.14, 0.22, 0.1]], buzz: [50, 70, 50] }
+    };
+
+    function feedback(kind) {
       if (!soundOn) return;
+      const spec = FEEDBACK[kind];
+      if (navigator.vibrate) navigator.vibrate(spec.buzz);
       initAudio();
       if (!audioCtx) return;
       if (audioCtx.state === 'suspended') audioCtx.resume();
-
-      const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-
-      windSource = audioCtx.createBufferSource();
-      windSource.buffer = noiseBuffer;
-      windSource.loop = true;
-
-      const windFilter = audioCtx.createBiquadFilter();
-      windFilter.type = 'bandpass';
-      windFilter.frequency.value = 400;
-      windFilter.Q.value = 3.0;
-
-      const windGain = audioCtx.createGain();
-      windGain.gain.value = 0.15;
-
-      windSource.connect(windFilter);
-      windFilter.connect(windGain);
-      windGain.connect(audioCtx.destination);
-      windSource.start();
-    }
-
-    function stopWindSound() {
-      if (!windSource) return;
-      try {
-        windSource.stop();
-        windSource.disconnect();
-      } catch (e) {}
-      windSource = null;
-    }
-
-    function playChimeSound() {
-      if (!soundOn) return;
-      initAudio();
-      if (!audioCtx) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-
-      const start = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1200, start);
-      osc.frequency.setValueAtTime(1600, start + 0.08);
-      gain.gain.setValueAtTime(0.2, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(start);
-      osc.stop(start + 0.25);
+      const now = audioCtx.currentTime;
+      spec.notes.forEach(([freq, offset, length, level]) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(level, now + offset + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + length);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + length + 0.02);
+      });
     }
 
     function toast(text, type) {
@@ -1065,6 +1029,7 @@
       box.classList.toggle('error', type === 'error');
       box.classList.toggle('success', type !== 'error');
       box.classList.add('show');
+      feedback(type === 'error' ? 'error' : 'success');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => box.classList.remove('show'), 3000);
     }
@@ -1076,12 +1041,12 @@
       if (tabName === 'wallet' && session) refreshState().catch(() => {});
       if (tabName === 'market') loadMarket();
       if (tabName === 'friends' && session && !invite) refreshInvite().catch(() => {});
-      playChimeSound();
+      feedback('tap');
     }
 
     function openModal(id) {
       $(id).classList.remove('hidden');
-      playChimeSound();
+      feedback('tap');
     }
 
     function clearFields(root) {
@@ -1098,13 +1063,15 @@
       if (e) e.preventDefault();
       $('coin-drum').classList.add('active-mine');
       $('mined-counter').classList.add('fast');
-      startWindSound();
+      feedback('tap');
+      clearInterval(miningTicker);
+      miningTicker = setInterval(() => feedback('tick'), 140);
     }
 
     function stopMining() {
       $('coin-drum').classList.remove('active-mine');
       $('mined-counter').classList.remove('fast');
-      stopWindSound();
+      clearInterval(miningTicker);
     }
 
     async function rpc(fn, args) {
@@ -1184,6 +1151,7 @@
         try { localStorage.setItem('oc_session', JSON.stringify(session)); } catch (e) {}
         await enter();
         clearFields(document);
+        feedback('success');
       } catch (e) {
         session = null;
         toast(e.message, 'error');
@@ -1228,10 +1196,10 @@
     }
 
     function handleSessionError(e) {
-      if (e.message === 'Session expired') logout();
+      if (e.message === 'Session expired') endSession();
     }
 
-    function logout() {
+    function endSession() {
       try { localStorage.removeItem('oc_session'); } catch (e) {}
       clearInterval(stateTimer);
       clearInterval(pulseTimer);
@@ -1429,7 +1397,7 @@
     async function claimMinedCoins() {
       try {
         await call('oc_claim');
-        playChimeSound();
+        feedback('success');
         await Promise.all([refreshState(), pulse()]);
       } catch (e) {
         toast(e.message, 'error');
@@ -1508,7 +1476,7 @@
           await call('oc_buy_op', { p_amount: buyAmount });
           payRequested = true;
         }
-        playChimeSound();
+        feedback('success');
         btn.innerText = 'Copied';
         setTimeout(() => { btn.innerText = label; }, 1500);
       } catch (e) {
@@ -1541,19 +1509,20 @@
     }
 
     function selectPack(btn) {
+      feedback('tap');
       rentUnit = Number(btn.dataset.unit);
       document.querySelectorAll('.pack-btn').forEach(b => b.classList.toggle('selected', b === btn));
       requestRentQuote(1);
     }
 
     function changeQty(step) {
+      feedback('tap');
       requestRentQuote(rentQty + step);
     }
 
     async function rentMiner() {
       try {
         const ghs = await call('oc_rent', { p_unit: rentUnit, p_qty: rentQty });
-        playChimeSound();
         await Promise.all([refreshState(), pulse()]);
         closeModal('booster-modal');
         selectPack(defaultPack);
@@ -1570,7 +1539,6 @@
     async function claimDailyReward() {
       try {
         const reward = await call('oc_daily');
-        playChimeSound();
         await Promise.all([refreshState(), pulse()]);
         closeModal('calendar-modal');
         toast(`Claimed +${reward} OnePoint daily reward!`, 'success');
@@ -1587,7 +1555,6 @@
         await call('oc_change_pass', { p_old: oldP, p_new: newP });
         $('set-old-pass').value = '';
         $('set-new-pass').value = '';
-        playChimeSound();
         toast('Password changed successfully!', 'success');
       } catch (e) {
         toast(e.message, 'error');
@@ -1603,7 +1570,6 @@
         await call('oc_set_address', { p_addr: $('addr-input').value });
         await refreshState();
         renderSettings();
-        playChimeSound();
         toast('USDT address saved!', 'success');
       } catch (e) {
         toast(e.message, 'error');
@@ -1639,6 +1605,7 @@
     }
 
     function toggleTheme() {
+      feedback('tap');
       const light = document.documentElement.classList.toggle('light');
       try { localStorage.setItem('oc_theme', light ? 'light' : 'dark'); } catch (e) {}
       $('meta-theme').setAttribute('content', light ? '#f5f1e8' : '#07070b');
@@ -1648,14 +1615,12 @@
     function toggleSound() {
       soundOn = !soundOn;
       try { localStorage.setItem('oc_sound', soundOn ? 'on' : 'off'); } catch (e) {}
-      if (!soundOn) stopWindSound();
       renderSettings();
-      playChimeSound();
+      feedback('tap');
     }
 
     function copyCode() {
       copyText($('my-code').value).then(() => {
-        playChimeSound();
         toast('Invite code copied to clipboard!', 'success');
       }).catch(e => toast(e.message, 'error'));
     }
@@ -1663,7 +1628,6 @@
     async function withdrawReferrals() {
       try {
         const amt = await call('oc_withdraw_aff');
-        playChimeSound();
         await refreshState();
         toast(`${fmtUsd(amt)} USDT moved to your wallet!`, 'success');
       } catch (e) {
@@ -1706,7 +1670,6 @@
       btn.disabled = true;
       try {
         const usd = await call('oc_convert', { p_pct: Number($('conv-slider').value) });
-        playChimeSound();
         closeModal('convert-modal');
         await refreshState();
         toast(`Swapped to ${fmtUsd(usd)} USDT!`, 'success');
@@ -1773,7 +1736,6 @@
         await call('oc_withdraw', { p_amount: typedWithdrawAmount() });
         await refreshState();
         closeModal('withdraw-modal');
-        playChimeSound();
         toast('Withdrawal request submitted successfully!', 'success');
       } catch (e) {
         toast(e.message, 'error');
@@ -1882,6 +1844,7 @@
     }
 
     function toggleChartType() {
+      feedback('tap');
       chartType = chartType === 'line' ? 'candles' : 'line';
       if (marketData) drawChart();
     }
@@ -1903,7 +1866,6 @@
         setDirection(el, Number(m.changes[key]) >= 0);
       });
       $('mk-cap').innerText = fmtBig(m.market_cap, true);
-      $('mk-fdv').innerText = fmtBig(m.fdv, true);
       $('mk-vol').innerText = fmtBig(m.volume_24h, true);
       $('mk-circ').innerText = fmtBig(m.circulating_supply, false);
       $('mk-max').innerText = fmtBig(m.max_supply, false);
@@ -1913,6 +1875,7 @@
     }
 
     function setMarketRange(range) {
+      feedback('tap');
       marketRange = range;
       document.querySelectorAll('.mk-range').forEach(btn => btn.classList.toggle('active', btn.dataset.range === range));
       loadMarket();
