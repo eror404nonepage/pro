@@ -16,6 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@2/dist/tonconnect-ui.min.js"></script>
   <style>
 
     :root {
@@ -62,7 +64,6 @@
       --brand-text: #ffffff;
       --silver-caret: #d4d8e0;
       --ico-bg: linear-gradient(145deg, #2d2d3a, #15151c);
-      --auth-link: #ffffff;
       --silver-line: rgba(214, 218, 226, 0.5);
       --silver-soft: rgba(214, 218, 226, 0.1);
     }
@@ -108,7 +109,6 @@
       --brand-text: #1c1811;
       --silver-caret: #6c7280;
       --ico-bg: linear-gradient(145deg, #2c2619, #14110a);
-      --auth-link: #1c1811;
       --silver-line: rgba(110, 116, 130, 0.55);
       --silver-soft: rgba(110, 116, 130, 0.12);
     }
@@ -167,11 +167,9 @@
     .logo-md { width: 38px; height: 38px; font-size: 24px; }
     .logo-brand { width: 30px; height: 30px; font-size: 19px; }
     .logo-xxl { width: 116px; height: 116px; font-size: 80px; color: transparent; }
-    .coin-img { display: block; width: 38px; height: 38px; border-radius: 50%; flex: none; object-fit: contain; }
 
     img { pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
-    .logo, .coin, .coin-opt, .pack, .chip, .bal { -webkit-touch-callout: none; }
-    .coin-fallback { display: inline-grid; place-items: center; background: transparent; color: var(--text); font-size: 10px; font-weight: 800; }
+    .logo, .coin, .pack, .chip, .bal { -webkit-touch-callout: none; }
 
     .display { font-family: var(--font-display); font-weight: 700; font-variant-numeric: lining-nums; }
     .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
@@ -386,16 +384,6 @@
     .auth-card { width: 100%; max-width: 372px; padding-top: calc(env(safe-area-inset-top) + 9vh); display: flex; flex-direction: column; align-items: center; gap: 15px; text-align: center; }
     .auth-card h3 { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; color: var(--muted); margin: 8px 0 2px; }
     .auth-card .input, .auth-card .btn { width: 100%; }
-    .pw { position: relative; width: 100%; }
-    .pw .input { padding-right: 54px; }
-    .eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: var(--auth-link); }
-
-    .eye:focus-visible { outline: none; }
-    .eye .ic { width: 22px; height: 22px; }
-    .eye .slash { display: none; }
-    .eye.shown .slash { display: block; }
-    .auth-link { color: var(--auth-link); font-size: 13px; font-weight: 600; padding: 8px; }
-    .auth-link:hover { opacity: 0.8; }
 
     .days { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .day { padding: 18px 12px; border-radius: 22px; text-align: center; background: var(--surface-2); border: 1px solid var(--line); transition: background 0.3s ease, border-color 0.3s ease; }
@@ -406,13 +394,9 @@
     .day.big { grid-column: 1 / -1; padding: 30px 14px; }
     .day.big .day-reward { font-size: 26px; }
 
-    .coin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .coin-opt { display: flex; align-items: center; justify-content: flex-start; gap: 12px; height: 58px; padding: 0 14px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line); font-size: 14px; font-weight: 700; transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease; }
-    .coin-opt .coin-img { width: 30px; height: 30px; }
-    .coin-opt:hover { border-color: var(--gold-line); background: var(--gold-soft); }
-    .coin-opt:active { transform: scale(0.96); }
     .pay-price { font-family: var(--font-display); font-weight: 700; font-size: 25px; line-height: 1.2; text-align: center; padding: 0 28px; font-variant-numeric: lining-nums; }
-    .pay-addr { font-size: 13px; font-weight: 500; line-height: 1.4; word-break: break-all; user-select: all; }
+    .success-mark { align-self: center; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; color: #16c784; background: rgba(22, 199, 132, 0.14); border: 1px solid rgba(22, 199, 132, 0.4); }
+    .success-mark svg { width: 30px; height: 30px; }
     .pay-box { padding: 16px 14px; border-radius: 16px; text-align: center; font-size: 15px; font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); }
     .menu-btn { display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px; border-radius: 18px; background: var(--surface-2); border: 1px solid var(--line); text-align: left; font-size: 15px; font-weight: 700; transition: transform 0.15s ease, border-color 0.2s ease; }
     .menu-btn:hover { border-color: var(--gold-line); }
@@ -735,19 +719,11 @@
     </div>
   </nav>
 
-  <div id="auth-modal" class="auth">
+  <div id="gate" class="auth">
     <div class="auth-card">
       <span class="logo logo-xxl" data-logo="one">1</span>
       <span class="wordmark-lux">OneCoin</span>
-      <h3 id="auth-title">SIGN UP</h3>
-      <input id="auth-user" onkeydown="if (event.key === 'Enter') submitAuth()" type="text" maxlength="20" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" oninput="sanitize(this, /[^a-z]/g)" placeholder="Username" class="input">
-      <div class="pw">
-        <input id="auth-pass" onkeydown="if (event.key === 'Enter') submitAuth()" type="password" autocomplete="new-password" oninput="sanitize(this, /[^!-~]/g)" placeholder="Password" class="input">
-        <button id="auth-eye" type="button" onmousedown="eyeDown(); event.preventDefault()" ontouchstart="eyeDown()" onclick="togglePass()" aria-label="Show password" class="eye"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3.5 3.5l17 17"/></svg></button>
-      </div>
-      <input id="auth-code" onkeydown="if (event.key === 'Enter') submitAuth()" type="text" inputmode="numeric" oninput="sanitize(this, /\D/g)" placeholder="Invite Code" class="input">
-      <button id="auth-submit" onclick="submitAuth()" class="btn btn-gold">SIGN UP</button>
-      <button id="auth-switch" onclick="setAuthMode(authMode === 'in' ? 'up' : 'in')" class="auth-link">Have an account? Sign In</button>
+      <p id="gate-text" class="note" style="text-align: center;">Loading...</p>
     </div>
   </div>
 
@@ -759,17 +735,15 @@
       </div>
 
       <div class="card stack">
-        <div class="card-title">Change password</div>
-        <input id="set-old-pass" type="password" autocomplete="current-password" oninput="sanitize(this, /[^!-~]/g)" placeholder="Old password" class="input">
-        <input id="set-new-pass" type="password" autocomplete="new-password" oninput="sanitize(this, /[^!-~]/g)" onkeydown="if (event.key === 'Enter') changePassword()" placeholder="New password" class="input">
-        <button onclick="changePassword()" class="btn btn-gold">Save password</button>
+        <div class="card-title">TON wallet</div>
+        <div id="set-wallet" class="addr"></div>
+        <div id="ton-connect"></div>
+        <div class="note">Connect your wallet to pay for packages and to withdraw. Disconnecting removes it from your profile.</div>
       </div>
 
       <div class="card stack">
-        <div class="card-title">USDT address</div>
-        <input id="addr-input" type="text" autocomplete="off" oninput="sanitize(this, /[^0-9A-Za-z]/g)" placeholder="Enter your USDT address" class="input">
-        <div id="addr-note" class="note">Once added, the address cannot be changed.</div>
-        <button id="addr-btn" onclick="saveAddress()" class="btn btn-gold">Add address</button>
+        <div class="card-title">Active package</div>
+        <div id="set-package" class="addr"></div>
       </div>
 
       <div class="tiles">
@@ -791,9 +765,9 @@
       <div class="sheet-title">Withdraw USDT</div>
 
       <div class="inset" style="gap: 8px;">
-        <div class="eyebrow">USDT address</div>
+        <div class="eyebrow">TON wallet</div>
         <div id="wd-addr" class="addr"></div>
-        <button id="wd-addr-add" onclick="goSettings()" class="btn btn-line btn-sm hidden" style="width: auto; align-self: flex-start;">Add address in Settings</button>
+        <button id="wd-addr-add" onclick="connectWallet()" class="btn btn-line btn-sm hidden" style="width: auto; align-self: flex-start;">Connect wallet</button>
       </div>
 
       <div class="field">
@@ -852,30 +826,25 @@
     </div>
   </div>
 
-  <div id="pay-modal" class="modal hidden">
+  <div id="purchase-modal" class="modal hidden">
     <div class="sheet">
-      <button onclick="closeModal('pay-modal')" aria-label="Close" class="close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-      <div class="sheet-title">Select a payment method</div>
-      <div class="coin-grid">
-        <button onclick="selectPayment('Bitcoin')" class="coin-opt"><img src="https://assets.coincap.io/assets/icons/btc@2x.png" data-alt="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=040" data-sym="BTC" onerror="coinFallback(this)" alt="Bitcoin" class="coin-img"><span>Bitcoin</span></button>
-        <button onclick="selectPayment('Ethereum')" class="coin-opt"><img src="https://assets.coincap.io/assets/icons/eth@2x.png" data-alt="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040" data-sym="ETH" onerror="coinFallback(this)" alt="Ethereum" class="coin-img"><span>Ethereum</span></button>
-        <button onclick="selectPayment('BNB')" class="coin-opt"><img src="https://assets.coincap.io/assets/icons/bnb@2x.png" data-alt="https://cryptologos.cc/logos/bnb-bnb-logo.png?v=040" data-sym="BNB" onerror="coinFallback(this)" alt="BNB" class="coin-img"><span>BNB</span></button>
-        <button onclick="selectPayment('Solana')" class="coin-opt"><img src="https://assets.coincap.io/assets/icons/sol@2x.png" data-alt="https://cryptologos.cc/logos/solana-sol-logo.png?v=040" data-sym="SOL" onerror="coinFallback(this)" alt="Solana" class="coin-img"><span>Solana</span></button>
-        <button onclick="selectPayment('USDT')" class="coin-opt"><svg class="coin-img" viewBox="0 0 32 32" role="img" aria-label="USDT"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#ffffff" d="M17.922 17.383v-.002c-.11.008-.677.042-1.942.042-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658 0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061 1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658 0 .81-2.895 1.485-6.775 1.657m0-3.59v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118 0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116 0-1.043-3.301-1.914-7.694-2.117"/></svg><span>USDT</span></button>
-        <button onclick="selectPayment('TON')" class="coin-opt"><svg class="coin-img" viewBox="0 0 56 56" role="img" aria-label="TON"><circle cx="28" cy="28" r="28" fill="#0098EA"/><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="#ffffff"/></svg><span>TON</span></button>
-      </div>
+      <button onclick="closeModal('purchase-modal')" aria-label="Close" class="close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="sheet-title">Activate package</div>
+      <div id="pu-title" class="pay-price"></div>
+      <div id="pu-box" class="pay-box"></div>
+      <button id="pu-pay" onclick="payPurchase()" class="btn btn-gold">Pay with TON</button>
+      <p class="note" style="text-align: center;">Your package is activated automatically as soon as the payment is confirmed on the blockchain.</p>
     </div>
   </div>
 
-  <div id="pay-detail-modal" class="modal hidden">
+  <div id="success-modal" class="modal hidden">
     <div class="sheet">
-      <button onclick="closeModal('pay-detail-modal')" aria-label="Close" class="close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-      <div id="pd-title" class="pay-price"></div>
-      <div id="pd-box" class="pay-box"></div>
-      <div id="pd-addr" class="pay-box pay-addr"></div>
-      <button id="pd-copy" onclick="payCopy()" class="btn btn-gold">Copy amount</button>
-      <button id="pd-copy-addr" onclick="payCopyAddress()" class="btn btn-ghost">Copy address</button>
-      <p class="note" style="text-align: center;">Please send the exact amount of cryptocurrency to the specified crypto address otherwise the payment will fail.</p>
+      <button onclick="closeModal('success-modal')" aria-label="Close" class="close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="success-mark"><svg class="ic ic-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <div class="sheet-title">Package activated</div>
+      <div id="su-text" class="pay-price"></div>
+      <p id="su-note" class="note" style="text-align: center;"></p>
+      <button onclick="closeModal('success-modal')" class="btn btn-gold">Great</button>
     </div>
   </div>
 
@@ -951,19 +920,14 @@
     const $ = id => document.getElementById(id);
     const defaultPack = document.querySelector('.pack-btn');
 
+    const tg = window.Telegram && window.Telegram.WebApp;
     let session = null;
     let state = null;
     let config = {};
-    let authMode = 'up';
     let pulseTimer = null;
     let stateTimer = null;
     let pulseBusy = false;
     let toastTimer = null;
-    let eyeKeep = null;
-    let buyAmount = 0;
-    let payCoin = '';
-    let payQuote = null;
-    let payRequested = false;
     let rentUnit = 0;
     let rentQty = 1;
     let rentSeq = 0;
@@ -982,6 +946,12 @@
     let marketData = null;
     let chartType = 'line';
     let tipActive = false;
+    let tonConnect = null;
+    let walletUpdate;
+    let tonWasConnected = false;
+    let pendingPurchases = false;
+    let purchasePack = 0;
+    let purchaseQuote = null;
 
     try { soundOn = localStorage.getItem('oc_sound') !== 'off'; } catch (e) {}
 
@@ -994,16 +964,17 @@
     }
 
     const FEEDBACK = {
-      tap: { notes: [[1900, 0, 0.035, 0.04]], buzz: 8 },
-      tick: { notes: [[2600, 0, 0.015, 0.025]], buzz: 5 },
-      success: { notes: [[784, 0, 0.1, 0.09], [1175, 0.1, 0.22, 0.09]], buzz: [18, 50, 18] },
-      error: { notes: [[330, 0, 0.12, 0.1], [247, 0.14, 0.22, 0.1]], buzz: [50, 70, 50] }
+      tap: { notes: [[1900, 0, 0.035, 0.04]], buzz: 8, haptic: ['impactOccurred', 'light'] },
+      tick: { notes: [[2600, 0, 0.015, 0.025]], buzz: 5, haptic: ['selectionChanged'] },
+      success: { notes: [[784, 0, 0.1, 0.09], [1175, 0.1, 0.22, 0.09]], buzz: [18, 50, 18], haptic: ['notificationOccurred', 'success'] },
+      error: { notes: [[330, 0, 0.12, 0.1], [247, 0.14, 0.22, 0.1]], buzz: [50, 70, 50], haptic: ['notificationOccurred', 'error'] }
     };
 
     function feedback(kind) {
       if (!soundOn) return;
       const spec = FEEDBACK[kind];
-      if (navigator.vibrate) navigator.vibrate(spec.buzz);
+      if (tg && tg.HapticFeedback) tg.HapticFeedback[spec.haptic[0]](...spec.haptic.slice(1));
+      else if (navigator.vibrate) navigator.vibrate(spec.buzz);
       initAudio();
       if (!audioCtx) return;
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1096,66 +1067,8 @@
       return rpc(fn, Object.assign({ p_user: session.u, p_token: session.t }, extra));
     }
 
-    function sanitize(el, re) {
-      el.value = el.value.replace(re, '');
-    }
-
     function esc(v) {
       return String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-
-    function setAuthMode(mode) {
-      authMode = mode;
-      $('auth-code').classList.toggle('hidden', mode === 'in');
-      $('auth-title').innerText = mode === 'in' ? 'SIGN IN' : 'SIGN UP';
-      $('auth-submit').innerText = mode === 'in' ? 'SIGN IN' : 'SIGN UP';
-      $('auth-switch').innerText = mode === 'in' ? 'No account? Sign Up' : 'Have an account? Sign In';
-      $('auth-pass').autocomplete = mode === 'in' ? 'current-password' : 'new-password';
-      setPassVisible(false);
-    }
-
-    function setPassVisible(visible) {
-      const eye = $('auth-eye');
-      $('auth-pass').type = visible ? 'text' : 'password';
-      eye.classList.toggle('shown', visible);
-      eye.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
-    }
-
-    function eyeDown() {
-      const a = document.activeElement;
-      eyeKeep = a && a.tagName === 'INPUT' ? a : null;
-    }
-
-    function togglePass() {
-      const input = $('auth-pass');
-      const start = input.selectionStart;
-      const end = input.selectionEnd;
-      setPassVisible(input.type === 'password');
-      if (eyeKeep) {
-        eyeKeep.focus({ preventScroll: true });
-        if (eyeKeep === input) { try { input.setSelectionRange(start, end); } catch (e) {} }
-      }
-      eyeKeep = null;
-    }
-
-    async function submitAuth() {
-      const u = $('auth-user').value;
-      const p = $('auth-pass').value;
-      const c = $('auth-code').value;
-      try {
-        const t = authMode === 'up'
-          ? await rpc('oc_register', { p_user: u, p_pass: p, p_ref: c })
-          : await rpc('oc_login', { p_user: u, p_pass: p });
-        if (!t) throw new Error('Invalid username or password');
-        session = { u, t };
-        try { localStorage.setItem('oc_session', JSON.stringify(session)); } catch (e) {}
-        await enter();
-        clearFields(document);
-        feedback('success');
-      } catch (e) {
-        session = null;
-        toast(e.message, 'error');
-      }
     }
 
     async function loadConfig() {
@@ -1179,13 +1092,16 @@
       await loadConfig();
       await refreshState();
       await pulse();
-      $('auth-modal').classList.add('hidden');
+      $('gate').classList.add('hidden');
+      initTonConnect();
+      syncWallet();
       selectPack(defaultPack);
       clearInterval(stateTimer);
       clearInterval(pulseTimer);
       stateTimer = setInterval(() => {
         if (document.hidden) return;
         refreshState().catch(handleSessionError);
+        if (pendingPurchases) confirmPending().catch(handleSessionError);
       }, 30000);
       pulseTimer = setInterval(pulse, 1000);
       clearInterval(marketTimer);
@@ -1193,13 +1109,50 @@
         if (!document.hidden && !$('tab-market').classList.contains('hidden')) loadMarket();
       }, 15000);
       refreshInvite().catch(() => {});
+      call('oc_confirm_purchase', {}).then(refreshState).catch(() => {});
     }
 
-    function handleSessionError(e) {
-      if (e.message === 'Session expired') endSession();
+    function showGate(text) {
+      $('gate-text').innerText = text;
+      $('gate').classList.remove('hidden');
+    }
+
+    async function startSession() {
+      if (!tg || !tg.initData || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+        showGate('Open this app from Telegram');
+        return;
+      }
+      tg.ready();
+      tg.expand();
+      const id = String(tg.initDataUnsafe.user.id);
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem('oc_session')); } catch (e) {}
+      if (saved && saved.u === id) {
+        session = saved;
+        try {
+          await enter();
+          return;
+        } catch (e) {
+          session = null;
+        }
+      }
+      try {
+        const token = await rpc('oc_tg_login', { p_init_data: tg.initData });
+        if (!token) {
+          showGate('Authorization failed. Reopen the app from Telegram.');
+          return;
+        }
+        session = { u: id, t: token };
+        try { localStorage.setItem('oc_session', JSON.stringify(session)); } catch (e) {}
+        await enter();
+      } catch (e) {
+        session = null;
+        showGate(e.message);
+      }
     }
 
     function endSession() {
+      if (!session) return;
       try { localStorage.removeItem('oc_session'); } catch (e) {}
       clearInterval(stateTimer);
       clearInterval(pulseTimer);
@@ -1208,23 +1161,12 @@
       state = null;
       invite = null;
       clearFields(document);
-      setAuthMode('in');
-      $('auth-modal').classList.remove('hidden');
+      showGate('Reconnecting...');
+      startSession();
     }
 
-    async function boot() {
-      try {
-        session = JSON.parse(localStorage.getItem('oc_session'));
-      } catch (e) {
-        session = null;
-      }
-      if (!session) return;
-      try {
-        await enter();
-      } catch (e) {
-        handleSessionError(e);
-        session = null;
-      }
+    function handleSessionError(e) {
+      if (e.message === 'Session expired') endSession();
     }
 
     async function pulse() {
@@ -1364,7 +1306,7 @@
     function renderFriends(list) {
       $('friends-count').innerText = `${list.length} Users`;
       $('friends-list').innerHTML = list.length
-        ? list.map(f => `<div class="friend"><span>${esc(f.username)}</span><b>${Number(f.one).toFixed(9)} ONE</b></div>`).join('')
+        ? list.map(f => `<div class="friend"><span>${esc(f.name)}</span><b>${Number(f.one).toFixed(9)} ONE</b></div>`).join('')
         : '<div class="empty">No friends invited yet. Share your invite code above!</div>';
     }
 
@@ -1385,7 +1327,7 @@
                 <span>${esc(w.date)}, ${esc(w.time)}</span>
                 <span class="st ${key}" title="${st.label}" aria-label="${st.label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${st.icon}</svg></span>
               </div>
-              <div class="tx-row"><span>To</span><b class="tx-addr">${maskAddr(w.addr)}</b></div>
+              <div class="tx-row"><span>To</span><b class="tx-addr">${maskAddr(w.wallet)}</b></div>
               <div class="tx-row"><span>Fee</span><b>${Number(w.fee_pct)}%</b></div>
               <div class="tx-row"><span>Withdrawn</span><b>${fmtUsd(w.amount)} USDT</b></div>
               <div class="tx-row"><span>${esc(w.result_label)}</span><b>${fmtUsd(w.result_amount)} USDT</b></div>
@@ -1423,75 +1365,6 @@
       closeModal('op-buy-modal');
       switchTab('home');
       $('op-shop').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function buyOpPackage(amount) {
-      buyAmount = amount;
-      payRequested = false;
-      openModal('pay-modal');
-    }
-
-    async function selectPayment(name) {
-      payCoin = name;
-      payQuote = null;
-      closeModal('pay-modal');
-      $('pd-title').innerText = '...';
-      $('pd-box').innerText = `${buyAmount.toLocaleString()} One Point`;
-      $('pd-addr').innerText = '...';
-      $('pd-copy').disabled = true;
-      $('pd-copy-addr').disabled = true;
-      openModal('pay-detail-modal');
-      try {
-        const q = await rpc('oc_quote_pay', { p_amount: buyAmount, p_coin: name });
-        if (payCoin !== name) return;
-        payQuote = q;
-        $('pd-title').innerText = `$${q.usd} = ${q.crypto} ${q.symbol}`;
-        $('pd-box').innerText = `${buyAmount.toLocaleString()} One Point - ${q.symbol}`;
-        $('pd-addr').innerText = q.address;
-        $('pd-copy').disabled = false;
-        $('pd-copy-addr').disabled = false;
-      } catch (e) {
-        if (payCoin === name) $('pd-title').innerText = e.message;
-      }
-    }
-
-    function coinFallback(img) {
-      if (img.dataset.alt && !img.dataset.tried) {
-        img.dataset.tried = '1';
-        img.src = img.dataset.alt;
-        return;
-      }
-      const d = document.createElement('div');
-      d.className = img.className + ' coin-fallback';
-      d.innerText = img.dataset.sym;
-      img.replaceWith(d);
-    }
-
-    async function copyPayment(text, btnId, label) {
-      const btn = $(btnId);
-      btn.disabled = true;
-      try {
-        await copyText(text);
-        if (!payRequested) {
-          await call('oc_buy_op', { p_amount: buyAmount });
-          payRequested = true;
-        }
-        feedback('success');
-        btn.innerText = 'Copied';
-        setTimeout(() => { btn.innerText = label; }, 1500);
-      } catch (e) {
-        toast(e.message, 'error');
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    function payCopy() {
-      if (payQuote) copyPayment(payQuote.crypto, 'pd-copy', 'Copy amount');
-    }
-
-    function payCopyAddress() {
-      if (payQuote) copyPayment(payQuote.address, 'pd-copy-addr', 'Copy address');
     }
 
     async function requestRentQuote(qty) {
@@ -1547,46 +1420,11 @@
       }
     }
 
-    async function changePassword() {
-      const oldP = $('set-old-pass').value;
-      const newP = $('set-new-pass').value;
-      if (!oldP || !newP) { toast('Fill in both fields', 'error'); return; }
-      try {
-        await call('oc_change_pass', { p_old: oldP, p_new: newP });
-        $('set-old-pass').value = '';
-        $('set-new-pass').value = '';
-        toast('Password changed successfully!', 'success');
-      } catch (e) {
-        toast(e.message, 'error');
-      }
-    }
-
-    async function saveAddress() {
-      if (state.addr) return;
-      if (!confirm('Save this address? It cannot be changed later.')) return;
-      const btn = $('addr-btn');
-      btn.disabled = true;
-      try {
-        await call('oc_set_address', { p_addr: $('addr-input').value });
-        await refreshState();
-        renderSettings();
-        toast('USDT address saved!', 'success');
-      } catch (e) {
-        toast(e.message, 'error');
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
     function renderSettings() {
-      const addr = state.addr;
-      const input = $('addr-input');
-      input.value = addr;
-      input.readOnly = !!addr;
-      $('addr-btn').classList.toggle('hidden', !!addr);
-      $('addr-note').innerText = addr
-        ? 'Address saved. It cannot be changed.'
-        : 'Once added, the address cannot be changed.';
+      $('set-wallet').innerText = state.wallet || 'Not connected';
+      $('set-package').innerText = state.active_package
+        ? `${Number(state.active_package).toLocaleString()} One Point`
+        : 'None';
       const light = document.documentElement.classList.contains('light');
       const svg = inner => `<svg class="ic ic-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
       $('theme-icon').innerHTML = svg(light
@@ -1597,6 +1435,117 @@
         ? '<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>'
         : '<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/>');
       $('sound-label').innerText = soundOn ? 'Sound on' : 'Sound off';
+    }
+
+    function commentPayload(text) {
+      const data = [0, 0, 0, 0, ...new TextEncoder().encode(text)];
+      const bytes = [0xb5, 0xee, 0x9c, 0x72, 0x01, 0x01, 0x01, 0x01, 0x00, data.length + 2, 0x00, 0x00, data.length * 2, ...data];
+      return btoa(String.fromCharCode(...bytes));
+    }
+
+    function initTonConnect() {
+      if (tonConnect || typeof TON_CONNECT_UI === 'undefined') return;
+      tonConnect = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: `${SB_URL}/rest/v1/rpc/oc_manifest?apikey=${SB_KEY}`,
+        buttonRootId: 'ton-connect',
+        actionsConfiguration: { twaReturnUrl: `https://t.me/${config.bot_username}` }
+      });
+      tonConnect.onStatusChange(wallet => {
+        if (wallet) tonWasConnected = true;
+        else if (!tonWasConnected) return;
+        walletUpdate = wallet
+          ? TON_CONNECT_UI.toUserFriendlyAddress(wallet.account.address, wallet.account.chain === '-3')
+          : null;
+        syncWallet();
+      });
+    }
+
+    async function syncWallet() {
+      if (!session || !state || walletUpdate === undefined || (state.wallet || null) === walletUpdate) return;
+      try {
+        await call('oc_set_wallet', { p_address: walletUpdate });
+        await refreshState();
+        renderSettings();
+      } catch (e) {
+        toast(e.message, 'error');
+        if (tonConnect && tonConnect.connected) tonConnect.disconnect();
+      }
+    }
+
+    function connectWallet() {
+      if (tonConnect) tonConnect.openModal();
+    }
+
+    function buyOpPackage(amount) {
+      purchasePack = amount;
+      purchaseQuote = null;
+      $('pu-title').innerText = '...';
+      $('pu-box').innerText = `${amount.toLocaleString()} One Point`;
+      $('pu-pay').disabled = true;
+      openModal('purchase-modal');
+      rpc('oc_quote_purchase', { p_pack: amount }).then(q => {
+        if (purchasePack !== amount) return;
+        purchaseQuote = q;
+        $('pu-title').innerText = `$${q.usd} = ${q.ton} TON`;
+        $('pu-pay').disabled = false;
+      }).catch(e => {
+        if (purchasePack === amount) $('pu-title').innerText = e.message;
+      });
+    }
+
+    async function payPurchase() {
+      if (!purchaseQuote) return;
+      if (!tonConnect) {
+        toast('Wallet service is unavailable', 'error');
+        return;
+      }
+      if (!tonConnect.connected) {
+        tonConnect.openModal();
+        return;
+      }
+      const btn = $('pu-pay');
+      btn.disabled = true;
+      try {
+        const intent = await call('oc_create_purchase', { p_pack: purchasePack });
+        await tonConnect.sendTransaction({
+          validUntil: intent.valid_until,
+          messages: [{ address: intent.address, amount: String(intent.amount_nano), payload: commentPayload(intent.reference) }]
+        });
+        $('pu-title').innerText = 'Confirming payment...';
+        await confirmPurchase(intent.reference);
+      } catch (e) {
+        toast(e.message || 'Payment cancelled', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function confirmPurchase(reference) {
+      for (let attempt = 0; attempt < 24; attempt++) {
+        const res = await call('oc_confirm_purchase', { p_reference: reference });
+        if (res.status === 'completed') {
+          await refreshState();
+          closeModal('purchase-modal');
+          $('su-text').innerText = `+${Number(res.package).toLocaleString()} One Point`;
+          $('su-note').innerText = `Active package: ${Number(res.active_package).toLocaleString()} One Point`;
+          openModal('success-modal');
+          feedback('success');
+          return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+      pendingPurchases = true;
+      closeModal('purchase-modal');
+      toast('Payment is being confirmed. Your package will activate automatically.', 'success');
+    }
+
+    async function confirmPending() {
+      const res = await call('oc_confirm_purchase', {});
+      pendingPurchases = Number(res.pending) > 0;
+      if (!pendingPurchases) {
+        await refreshState();
+        toast('Package activated!', 'success');
+      }
     }
 
     function openSettings() {
@@ -1681,18 +1630,13 @@
 
     function openWithdraw() {
       const addrEl = $('wd-addr');
-      addrEl.innerText = state.addr || 'No address saved';
-      addrEl.classList.toggle('missing', !state.addr);
-      $('wd-addr-add').classList.toggle('hidden', !!state.addr);
+      addrEl.innerText = state.wallet || 'No wallet connected';
+      addrEl.classList.toggle('missing', !state.wallet);
+      $('wd-addr-add').classList.toggle('hidden', !!state.wallet);
       $('wd-amount').value = '';
-      $('wd-btn').disabled = !state.addr;
+      $('wd-btn').disabled = !state.wallet;
       requestWithdrawQuote(0);
       openModal('withdraw-modal');
-    }
-
-    function goSettings() {
-      closeModal('withdraw-modal');
-      openSettings();
     }
 
     function typedWithdrawAmount() {
@@ -1740,7 +1684,7 @@
       } catch (e) {
         toast(e.message, 'error');
       } finally {
-        btn.disabled = !state.addr;
+        btn.disabled = !state.wallet;
       }
     }
 
@@ -1903,7 +1847,7 @@
     }
 
     document.addEventListener('contextmenu', e => {
-      if (e.target.closest && e.target.closest('img, .logo, .coin, .coin-opt, .pack, .chip, .bal')) e.preventDefault();
+      if (e.target.closest && e.target.closest('img, .logo, .coin, .pack, .chip, .bal')) e.preventDefault();
     });
     document.addEventListener('dragstart', e => {
       if (e.target.tagName === 'IMG') e.preventDefault();
@@ -1923,7 +1867,7 @@
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => $('mk-plot').addEventListener(type, hideTip));
     renderMined(0);
     applyLogos();
-    boot();
+    startSession();
   </script>
 </body>
 </html>
