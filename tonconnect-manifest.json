@@ -1,5 +1,5 @@
 {
-  "url": "https://your-domain.example",
-  "name": "OneCoin",
-  "iconUrl": "https://your-domain.example/onecoinlogo.png"
+  "url": "https://onecoin-game.netlify.app",
+  "name": "onecoin-game",
+  "iconUrl": "https://onecoin-game.netlify.app/onecoinlogo.png"
 }
