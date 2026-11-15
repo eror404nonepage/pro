@@ -724,6 +724,7 @@
       <span class="logo logo-xxl" data-logo="one">1</span>
       <span class="wordmark-lux">OneCoin</span>
       <p id="gate-text" class="note" style="text-align: center;">Loading...</p>
+      <button id="gate-retry" onclick="startSession()" class="btn btn-gold hidden">Retry</button>
     </div>
   </div>
 
@@ -1112,18 +1113,32 @@
       call('oc_confirm_purchase', {}).then(refreshState).catch(() => {});
     }
 
-    function showGate(text) {
+    function showGate(text, retry) {
       $('gate-text').innerText = text;
+      $('gate-retry').classList.toggle('hidden', !retry);
       $('gate').classList.remove('hidden');
     }
 
+    function describeError(message) {
+      if (message === 'Bot token is not configured') {
+        return 'The bot is not connected yet. Open admin.html, go to Bot and press Connect.';
+      }
+      if (/Could not find the function|schema cache/.test(message)) {
+        return 'The database is not updated. Run onecoin.sql in Supabase.';
+      }
+      return message;
+    }
+
     async function startSession() {
+      if (tg) {
+        tg.ready();
+        tg.expand();
+      }
       if (!tg || !tg.initData || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-        showGate('Open this app from Telegram');
+        showGate('Open this app from the bot in Telegram: use the menu button or the Open OneCoin button.', false);
         return;
       }
-      tg.ready();
-      tg.expand();
+      showGate('Loading...', false);
       const id = String(tg.initDataUnsafe.user.id);
       let saved = null;
       try { saved = JSON.parse(localStorage.getItem('oc_session')); } catch (e) {}
@@ -1139,7 +1154,7 @@
       try {
         const token = await rpc('oc_tg_login', { p_init_data: tg.initData });
         if (!token) {
-          showGate('Authorization failed. Reopen the app from Telegram.');
+          showGate('Authorization failed. Close the app and open it again from the bot.', true);
           return;
         }
         session = { u: id, t: token };
@@ -1147,7 +1162,7 @@
         await enter();
       } catch (e) {
         session = null;
-        showGate(e.message);
+        showGate(describeError(e.message), true);
       }
     }
 
@@ -1161,7 +1176,7 @@
       state = null;
       invite = null;
       clearFields(document);
-      showGate('Reconnecting...');
+      showGate('Reconnecting...', false);
       startSession();
     }
 
